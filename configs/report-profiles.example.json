@@ -6,7 +6,15 @@
       "timezone": "Asia/Shanghai",
       "language": "zh-CN",
       "default_output_dir": "reports/daily",
-      "default_max_items": 10
+      "default_brief_items": 30,
+      "selection_output_dir": "selection/daily",
+      "editorial_focus": [
+        "technology landscape significance",
+        "ai and developer tools",
+        "infrastructure and open source",
+        "public-market narratives tied to Nasdaq, S&P 500, and SSE",
+        "news likely to affect megacap technology companies"
+      ]
     },
     {
       "id": "tech-morning",
@@ -14,7 +22,15 @@
       "timezone": "Asia/Shanghai",
       "language": "zh-CN",
       "default_output_dir": "reports/morning",
-      "default_max_items": 8
+      "default_brief_items": 30,
+      "selection_output_dir": "selection/morning",
+      "editorial_focus": [
+        "technology landscape significance",
+        "ai and developer tools",
+        "infrastructure and open source",
+        "public-market narratives tied to Nasdaq, S&P 500, and SSE",
+        "news likely to affect megacap technology companies"
+      ]
     },
     {
       "id": "tech-evening",
@@ -22,7 +38,15 @@
       "timezone": "Asia/Shanghai",
       "language": "zh-CN",
       "default_output_dir": "reports/evening",
-      "default_max_items": 8
+      "default_brief_items": 30,
+      "selection_output_dir": "selection/evening",
+      "editorial_focus": [
+        "technology landscape significance",
+        "ai and developer tools",
+        "infrastructure and open source",
+        "public-market narratives tied to Nasdaq, S&P 500, and SSE",
+        "news likely to affect megacap technology companies"
+      ]
     }
   ]
 }

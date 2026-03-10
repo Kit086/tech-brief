@@ -38,45 +38,39 @@ Before execution, identify or confirm these fields when they are not already pre
 - time range end
 - timezone
 - source config JSON path
+- optional report profile JSON path
+- optional report profile id
 - output directory
 - optional output filename
 - optional maximum item count
 - optional intermediate output directory for topic-selection artifacts
 
 If the task comes from cron and these values are already explicit, do not ask unnecessary follow-up questions.
+If a report profile is available, treat it as the authoritative source for report-level defaults.
 
 ## Execution flow
 
 1. Read `references/execution-rules.md`.
 2. Read `references/report-format.md` when drafting the final markdown.
 3. Read `references/source-schema.md` if you need to understand the fetched JSON structure.
-4. Run `scripts/fetch_sources.py` to generate one merged JSON file for the requested time range.
-5. Read the generated JSON output and review `items` as the main candidate pool.
-6. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
-7. Select roughly 10 to 20 items for `## 简报`, then expand the strongest subset in `## 摘要`.
-8. Merge duplicates or near-duplicates across feeds when they describe the same event.
-9. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
-10. Write the final markdown report.
-11. Save the report into the requested output directory.
-12. Confirm both output paths.
+4. Read the active report profile when one is provided.
+5. Run `scripts/fetch_sources.py` to generate one merged JSON file for the requested time range.
+6. Read the generated JSON output and review `items` as the main candidate pool.
+7. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
+8. Select items according to the active report profile or explicit user instructions.
+9. Merge duplicates or near-duplicates across feeds when they describe the same event.
+10. Draft `## 简报` and `## 摘要` as a paired list where every brief item has one matching detailed item.
+11. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
+12. Write the final markdown report.
+13. Save the report into the requested output directory.
+14. Confirm both output paths.
 
 ## Selection mechanism
 
 Do not select items randomly and do not rely on freshness alone.
 Use a lightweight editorial filter.
-
-When choosing items, prefer material that scores well on several of these dimensions:
-
-- significance to the technology landscape
-- relevance to AI, developer tools, infrastructure, open source, security, or major platform shifts
-- relevance to public-market sentiment, major indexes such as Nasdaq, S&P 500, or SSE, and news likely to affect megacap technology stocks
-- discussion intensity, such as strong Hacker News or Reddit engagement when available
-- evidence of cross-source reinforcement, especially when the same event appears in both media and community sources
-- novelty within the reporting window
-- usefulness to a reader who wants a compact but meaningful picture of what changed
-
-Avoid filling the report with repetitive items that all say nearly the same thing.
-If multiple sources cover the same event, keep the strongest representation and use the other sources as supporting context.
+Use the active report profile as the authoritative source for report-level defaults such as item count, output paths, and editorial focus.
+If no profile is provided, use general editorial judgment and keep the report compact, non-repetitive, and useful.
 
 ## Suggested curation steps
 
@@ -85,12 +79,11 @@ Use this order of operations:
 1. Skim all fetched `items`.
 2. Group obviously duplicated stories by shared URL, shared company/topic, or clearly overlapping headline meaning.
 3. Identify the events with the highest editorial value for this reporting window.
-4. Give extra attention to items that may move public-market narratives around major indexes or megacap technology companies.
-5. Prefer a balanced mix instead of twenty variations of the same theme.
-6. Use community signals from Reddit or Hacker News as supporting evidence, not as the only reason to include an item.
-7. Draft the topic-selection artifact before writing the final report.
-8. Write concise one-line brief bullets first.
-9. Expand only the items that still feel important after the brief list is drafted.
+4. Prefer a balanced mix instead of many variations of the same theme.
+5. Use community signals from Reddit or Hacker News as supporting evidence, not as the only reason to include an item.
+6. Draft the topic-selection artifact before writing the final report.
+7. Write concise one-line brief bullets first.
+8. Expand only the items that still feel important after the brief list is drafted.
 
 ## Topic-selection artifact
 
@@ -117,7 +110,11 @@ When writing the report:
 
 - prefer concise, information-dense Chinese writing unless the user requested another language
 - keep the top brief section short and scannable
-- the top brief section may scale up to about 20 items when the window is information-dense
+- make `## 简报` and `## 摘要` a strict one-to-one mapping
+- keep the same item count in both sections
+- keep the same ordering in both sections
+- do not leave any brief item without a matching detailed item
+- do not add any detailed item that does not appear in `## 简报`
 - keep the detailed section grounded in the fetched items
 - retain source links
 - avoid filler language and vague claims

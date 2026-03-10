@@ -22,9 +22,9 @@ https://example.com
 ## Formatting guidance
 
 - The title should include the report date and the visible report end time.
-- `## 简报` should usually contain 10 to 20 concise one-line bullets when the reporting window is information-dense.
-- `## 摘要` should expand only the items worth keeping.
+- `## 简报` should follow the active report profile or explicit user instruction for item count.
+- `## 摘要` must expand every item listed in `## 简报`.
+- `## 简报` and `## 摘要` must have the same item count and the same order.
 - Keep links directly under each item heading.
 - Prefer factual, compressed wording.
 - Avoid repeating the same context in every paragraph.
-- When relevant, include material tied to major public-market narratives, such as Nasdaq, S&P 500, SSE, or news likely to affect megacap technology stocks.

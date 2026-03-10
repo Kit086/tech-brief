@@ -33,6 +33,22 @@
       "priority": true
     },
     {
+      "id": "verge-rss",
+      "type": "rss",
+      "name": "The Verge",
+      "url": "https://www.theverge.com/rss/index.xml",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "simonwillison-rss",
+      "type": "rss",
+      "name": "Simon Willison",
+      "url": "https://simonwillison.net/atom/everything/",
+      "enabled": true,
+      "priority": true
+    },
+    {
       "id": "ml-reddit",
       "type": "reddit",
       "enabled": false,
@@ -59,6 +75,103 @@
       "type": "reddit",
       "name": "opencodeCLI",
       "subreddit": "opencodeCLI",
+      "enabled": true,
+      "priority": true,
+      "sort": "hot",
+      "limit": 10,
+      "min_score": 20
+    },
+    {
+      "id": "mit-tech-review-rss",
+      "type": "rss",
+      "name": "MIT Technology Review",
+      "url": "https://www.technologyreview.com/feed",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "openai-rss",
+      "type": "rss",
+      "name": "OpenAI Blog",
+      "url": "https://openai.com/blog/rss.xml",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "anthropic-rss",
+      "type": "rss",
+      "name": "Anthropic News",
+      "url": "https://www.anthropic.com/news/rss.xml",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "huggingface-rss",
+      "type": "rss",
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "deepmind-rss",
+      "type": "rss",
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "36kr-rss",
+      "type": "rss",
+      "name": "36氪",
+      "url": "https://36kr.com/feed",
+      "enabled": false,
+      "priority": false
+    },
+    {
+      "id": "synced-rss",
+      "type": "rss",
+      "name": "机器之心 Synced",
+      "url": "https://www.jiqizhixin.com/rss",
+      "enabled": false,
+      "priority": false
+    },
+    {
+      "id": "qbitai-rss",
+      "type": "rss",
+      "name": "量子位 QbitAI",
+      "url": "https://www.qbitai.com/feed",
+      "enabled": false,
+      "priority": false
+    },
+    {
+      "id": "localllama-reddit",
+      "type": "reddit",
+      "name": "LocalLLaMA",
+      "subreddit": "LocalLLaMA",
+      "enabled": true,
+      "priority": true,
+      "sort": "hot",
+      "limit": 5,
+      "min_score": 20
+    },
+    {
+      "id": "openclaw-reddit",
+      "type": "reddit",
+      "name": "openclaw",
+      "subreddit": "openclaw",
+      "enabled": true,
+      "priority": true,
+      "sort": "hot",
+      "limit": 10,
+      "min_score": 20
+    },
+    {
+      "id": "claudecode-reddit",
+      "type": "reddit",
+      "name": "ClaudeCode",
+      "subreddit": "ClaudeCode",
       "enabled": true,
       "priority": true,
       "sort": "hot",
