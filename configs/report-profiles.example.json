@@ -1,0 +1,28 @@
+{
+  "profiles": [
+    {
+      "id": "tech-daily",
+      "report_name": "科技日报",
+      "timezone": "Asia/Shanghai",
+      "language": "zh-CN",
+      "default_output_dir": "reports/daily",
+      "default_max_items": 10
+    },
+    {
+      "id": "tech-morning",
+      "report_name": "科技晨报",
+      "timezone": "Asia/Shanghai",
+      "language": "zh-CN",
+      "default_output_dir": "reports/morning",
+      "default_max_items": 8
+    },
+    {
+      "id": "tech-evening",
+      "report_name": "科技晚报",
+      "timezone": "Asia/Shanghai",
+      "language": "zh-CN",
+      "default_output_dir": "reports/evening",
+      "default_max_items": 8
+    }
+  ]
+}

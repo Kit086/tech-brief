@@ -1,0 +1,9 @@
+[project]
+name = "tech-brief"
+version = "0.0.1"
+description = "Agent-first skill assets and fetch utilities for scheduled tech brief reports"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "feedparser>=6.0.12",
+]

@@ -1,0 +1,69 @@
+{
+  "sources": [
+    {
+      "id": "hn-frontpage",
+      "type": "rss",
+      "enabled": true,
+      "name": "Hacker News",
+      "url": "https://hnrss.org/frontpage",
+      "priority": true
+    },
+    {
+      "id": "techcrunch-rss",
+      "type": "rss",
+      "name": "TechCrunch",
+      "url": "https://techcrunch.com/feed/",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "lobsters",
+      "type": "rss",
+      "enabled": true,
+      "name": "Lobsters",
+      "url": "https://lobste.rs/rss",
+      "priority": false
+    },
+    {
+      "id": "wired-rss",
+      "type": "rss",
+      "name": "Wired",
+      "url": "https://www.wired.com/feed/rss",
+      "enabled": true,
+      "priority": true
+    },
+    {
+      "id": "ml-reddit",
+      "type": "reddit",
+      "enabled": false,
+      "name": "r/MachineLearning",
+      "subreddit": "MachineLearning",
+      "sort": "new",
+      "limit": 10,
+      "min_score": 5,
+      "priority": true
+    },
+    {
+      "id": "openai-reddit",
+      "type": "reddit",
+      "enabled": true,
+      "name": "r/OpenAI",
+      "subreddit": "OpenAI",
+      "sort": "hot",
+      "limit": 10,
+      "min_score": 3,
+      "priority": false
+    },
+    {
+      "id": "opencodecli-reddit",
+      "type": "reddit",
+      "name": "opencodeCLI",
+      "subreddit": "opencodeCLI",
+      "enabled": true,
+      "priority": true,
+      "sort": "hot",
+      "limit": 10,
+      "min_score": 20
+    }
+  ]
+}
