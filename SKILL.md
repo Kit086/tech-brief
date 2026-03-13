@@ -59,7 +59,7 @@ If a report profile is available, treat it as the authoritative source for repor
 7. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
 8. Select items according to the active report profile or explicit user instructions.
 9. Merge duplicates or near-duplicates across feeds when they describe the same event.
-10. Draft `## 简报` and `## 摘要` as a paired list where every brief item has one matching detailed item.
+10. Draft a brief section and a matching detailed section as a paired list where every brief item has one matching detailed item.
 11. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
 12. Write the final markdown report.
 13. Save the report into the requested output directory.
@@ -110,11 +110,11 @@ When writing the report:
 
 - prefer concise, information-dense Chinese writing unless the user requested another language
 - keep the top brief section short and scannable
-- make `## 简报` and `## 摘要` a strict one-to-one mapping
+- make the brief section and the detailed section a strict one-to-one mapping
 - keep the same item count in both sections
 - keep the same ordering in both sections
 - do not leave any brief item without a matching detailed item
-- do not add any detailed item that does not appear in `## 简报`
+- do not add any detailed item that does not appear in the brief section
 - keep the detailed section grounded in the fetched items
 - retain source links
 - avoid filler language and vague claims

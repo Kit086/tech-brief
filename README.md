@@ -33,6 +33,16 @@ git clone https://github.com/Kit086/tech-brief.git
 
 The skill itself is defined by `SKILL.md` together with `scripts/`, `references/`, `assets/`, and `configs/`.
 
+Before customizing sources or report defaults, copy the example config files into your own working files:
+
+```bash
+copy configs\sources.example.json configs\sources.json
+copy configs\report-profiles.example.json configs\report-profiles.json
+```
+
+Use your copied `sources.json` and `report-profiles.json` for customization.
+This helps prevent your custom sources or report defaults from being overwritten when you update the skill repository later.
+
 ## Environment
 
 To run `scripts/fetch_sources.py`, you need:

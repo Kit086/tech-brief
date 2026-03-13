@@ -1,9 +1,9 @@
 # {{ report_title }}
 
-## 简报
+## {{ brief_section_title }}
 
 {{ brief_items }}
 
-## 摘要
+## {{ detailed_section_title }}
 
 {{ detailed_items }}

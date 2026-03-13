@@ -1,6 +1,6 @@
 [project]
 name = "tech-brief"
-version = "0.0.2"
+version = "0.0.3"
 description = "Agent-first skill assets and fetch utilities for scheduled tech brief reports"
 readme = "README.md"
 requires-python = ">=3.13"
