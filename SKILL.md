@@ -7,6 +7,9 @@ description: Generate scheduled or on-demand multi-source tech brief reports for
 
 Use this skill to help an Agent produce a markdown tech brief over a specific time window.
 
+Read the relevant JSON config files before doing anything else.
+If you skip the config files, you are likely to miss required sources, language settings, output paths, item counts, or editorial focus.
+
 The Agent is responsible for the report itself.
 The bundled Python script is only a data collection utility.
 Do not let the script replace your judgment, synthesis, or writing.
@@ -18,6 +21,37 @@ It fetches and normalizes candidate items from RSS feeds and Reddit public JSON 
 It does not decide what matters.
 It does not write the final report.
 You must read the fetched data, choose what deserves inclusion, merge overlapping topics, and write the final markdown report yourself.
+You must also read the active source config JSON and the active report profile JSON before fetching or writing.
+
+## Mandatory config-first behavior
+
+Before running the fetcher or drafting the report, read the relevant JSON config files.
+Do not assume default sources, language, output directories, or report size from memory.
+Do not start writing until you have checked the config files actually in use.
+
+Treat these files as authoritative when they are provided:
+
+- `configs/sources.json`
+- `configs/report-profiles.json`
+
+If only example files exist, read these instead:
+
+- `configs/sources.example.json`
+- `configs/report-profiles.example.json`
+
+At minimum, verify:
+
+- which sources are enabled or present
+- which source ids the task expects
+- report language
+- report name
+- timezone
+- output directory
+- selection artifact directory
+- default brief item count
+- editorial focus
+
+If a requested behavior conflicts with the active config, follow explicit user instructions and mention the override.
 
 ## When to use this skill
 
@@ -38,7 +72,7 @@ Before execution, identify or confirm these fields when they are not already pre
 - time range end
 - timezone
 - source config JSON path
-- optional report profile JSON path
+- report profile JSON path when one exists
 - optional report profile id
 - output directory
 - optional output filename
@@ -47,23 +81,59 @@ Before execution, identify or confirm these fields when they are not already pre
 
 If the task comes from cron and these values are already explicit, do not ask unnecessary follow-up questions.
 If a report profile is available, treat it as the authoritative source for report-level defaults.
+If a source config is available, treat it as the authoritative source for what can actually be fetched.
 
 ## Execution flow
 
-1. Read `references/execution-rules.md`.
-2. Read `references/report-format.md` when drafting the final markdown.
-3. Read `references/source-schema.md` if you need to understand the fetched JSON structure.
-4. Read the active report profile when one is provided.
-5. Run `scripts/fetch_sources.py` to generate one merged JSON file for the requested time range.
-6. Read the generated JSON output and review `items` as the main candidate pool.
-7. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
-8. Select items according to the active report profile or explicit user instructions.
-9. Merge duplicates or near-duplicates across feeds when they describe the same event.
-10. Draft a brief section and a matching detailed section as a paired list where every brief item has one matching detailed item.
-11. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
-12. Write the final markdown report.
-13. Save the report into the requested output directory.
-14. Confirm both output paths.
+1. Read the active source config JSON before anything else.
+2. Read the active report profile JSON before anything else when one exists.
+3. Confirm the reporting window.
+4. Confirm the timezone from the task or active profile.
+5. Verify the report language, output directory, brief item count, selection output directory, and editorial focus from config.
+6. Run `scripts/fetch_sources.py` with explicit `--from` and `--to` values to generate one merged JSON file for the requested time range.
+7. Read the generated JSON output.
+8. Review `items` first as the main candidate pool.
+9. Use `sources` or source-level status only for diagnostics.
+10. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
+11. Select items according to the active report profile or explicit user instructions.
+12. Merge duplicates or near-duplicates across feeds when they describe the same event.
+13. Draft a brief section and a matching detailed section as a paired list where every brief item has one matching detailed item.
+14. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
+15. Write the final markdown report.
+16. Save the report into the requested output directory.
+17. Confirm both output paths.
+
+## Agent-first boundary
+
+The Agent owns the final report.
+Python only fetches and normalizes candidate data.
+
+Do not shift any of these responsibilities into Python:
+
+- deciding what is important
+- selecting the final top items
+- merging overlapping stories into a single narrative
+- writing the brief bullets
+- writing the detailed summaries
+- writing the final markdown report
+
+## Supported source types
+
+The bundled fetcher supports:
+
+- RSS feeds
+- Reddit public JSON only
+
+Never use Reddit OAuth in this skill.
+
+## Time handling
+
+Prefer explicit ISO-8601 timestamps with offsets.
+Example:
+
+`2026-03-09T20:00:00+08:00`
+
+If the task describes Beijing time, use `+08:00` unless the user gave another offset.
 
 ## Selection mechanism
 
@@ -104,11 +174,54 @@ For example:
 - intermediate artifact under `.../selection/`
 - final report under `.../reports/`
 
+## Fetched JSON schema you must understand
+
+The fetch script outputs one JSON document with top-level metadata and fetched items.
+
+Top-level structure:
+
+```json
+{
+  "fetched_at": "2026-03-10T08:05:00+00:00",
+  "from": "2026-03-09T12:00:00+00:00",
+  "to": "2026-03-10T00:00:00+00:00",
+  "config_path": "configs/sources.json",
+  "items": [],
+  "sources": []
+}
+```
+
+Item structure:
+
+```json
+{
+  "id": "reddit:ml:https://example.com",
+  "source_id": "ml",
+  "source_type": "reddit",
+  "source_name": "r/MachineLearning",
+  "title": "Example title",
+  "url": "https://example.com",
+  "published_at": "2026-03-10T07:12:00+00:00",
+  "summary": "optional short source summary",
+  "metadata": {}
+}
+```
+
+Important notes:
+
+- `items` is the main list you should read for report writing
+- `sources` contains per-source diagnostics and counts
+- `summary` may be empty
+- `metadata` varies by source type
+- for Reddit items, `metadata` may include `reddit_url`, `external_url`, `score`, `num_comments`, `subreddit`, `sort`, and `priority`
+- for RSS items, `metadata` may include `author`, `tags`, and feed-specific fields
+
 ## Report-writing rules
 
 When writing the report:
 
 - prefer concise, information-dense Chinese writing unless the user requested another language
+- actually use the language from the active report profile or explicit user instruction
 - keep the top brief section short and scannable
 - make the brief section and the detailed section a strict one-to-one mapping
 - keep the same item count in both sections
@@ -119,6 +232,36 @@ When writing the report:
 - retain source links
 - avoid filler language and vague claims
 - if multiple items describe the same event, unify them into one stronger entry instead of listing all of them separately
+
+Use this structure unless the user explicitly requested another format.
+The section titles are illustrative and should be localized to the report language.
+
+```md
+# 2026-03-10 Tech Brief (2026-03-10 08:00)
+
+## [brief section title]
+
+1. ...
+2. ...
+3. ...
+
+## [detailed section title]
+
+### 1. Headline
+https://example.com
+
+Write the detailed summary here.
+```
+
+Formatting guidance:
+
+- the title should include the report date and the visible report end time
+- the brief section should follow the active report profile or explicit user instruction for item count
+- the detailed section must expand every item listed in the brief section
+- the brief section and the detailed section must have the same item count and the same order
+- keep links directly under each item heading
+- prefer factual, compressed wording
+- avoid repeating the same context in every paragraph
 
 ## Data-fetching rule
 

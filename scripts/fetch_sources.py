@@ -16,7 +16,7 @@ from urllib.request import Request, urlopen
 import feedparser
 
 _SSL_CTX = ssl.create_default_context()
-USER_AGENT = "tech-brief/0.0.1 (+https://github.com/Kit086/tech-brief)"
+USER_AGENT = "tech-brief/0.0.4 (+https://github.com/Kit086/tech-brief)"
 TIMEOUT_SECONDS = 30
 RETRY_COUNT = 2
 RETRY_DELAY_SECONDS = 3
