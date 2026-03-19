@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import ssl
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from html import unescape
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -16,11 +18,12 @@ from urllib.request import Request, urlopen
 import feedparser
 
 _SSL_CTX = ssl.create_default_context()
-USER_AGENT = "tech-brief/0.0.4 (+https://github.com/Kit086/tech-brief)"
+USER_AGENT = "tech-brief/0.0.5 (+https://github.com/Kit086/tech-brief)"
 TIMEOUT_SECONDS = 30
 RETRY_COUNT = 2
 RETRY_DELAY_SECONDS = 3
 MAX_WORKERS = 6
+SUMMARY_MAX_CHARS = 280
 REDDIT_BASE_URLS = [
     "https://www.reddit.com",
     "https://old.reddit.com",
@@ -104,6 +107,108 @@ def select_sources(
     return [source for source in sources if source.get("id") in source_ids]
 
 
+def strip_html(value: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", value)
+    text = unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def compact_summary(value: str) -> str:
+    text = strip_html(value)
+    if len(text) <= SUMMARY_MAX_CHARS:
+        return text
+    truncated = text[: SUMMARY_MAX_CHARS - 1].rstrip()
+    if " " in truncated:
+        truncated = truncated.rsplit(" ", 1)[0]
+    return f"{truncated}…"
+
+
+def compact_item_metadata(item: dict[str, Any]) -> dict[str, Any]:
+    source_type = item.get("source_type")
+    metadata = item.get("metadata") or {}
+    if source_type == "rss":
+        compacted = {
+            "priority": metadata.get("priority", False),
+        }
+        tags = metadata.get("tags") or []
+        useful_tags = [tag for tag in tags if tag]
+        if useful_tags:
+            compacted["tags"] = useful_tags[:3]
+        return compacted
+    if source_type == "reddit":
+        compacted = {
+            "score": metadata.get("score", 0),
+            "num_comments": metadata.get("num_comments", 0),
+            "subreddit": metadata.get("subreddit"),
+            "priority": metadata.get("priority", False),
+        }
+        reddit_url = metadata.get("reddit_url")
+        if reddit_url and reddit_url != item.get("url"):
+            compacted["reddit_url"] = reddit_url
+        return compacted
+    return metadata
+
+
+def compact_item(item: dict[str, Any]) -> dict[str, Any]:
+    compacted = {
+        "id": item.get("id"),
+        "source_id": item.get("source_id"),
+        "source_type": item.get("source_type"),
+        "source_name": item.get("source_name"),
+        "title": item.get("title"),
+        "url": item.get("url"),
+        "published_at": item.get("published_at"),
+        "summary": compact_summary(item.get("summary") or ""),
+        "metadata": compact_item_metadata(item),
+    }
+    return prune_empty_values(compacted)
+
+
+def compact_source_result(result: dict[str, Any]) -> dict[str, Any]:
+    compacted = {
+        "source_id": result.get("source_id"),
+        "source_type": result.get("source_type"),
+        "name": result.get("name"),
+        "status": result.get("status"),
+        "error": result.get("error"),
+        "count": result.get("count"),
+        "priority": result.get("priority", False),
+    }
+    if result.get("source_type") == "reddit":
+        compacted["subreddit"] = result.get("subreddit")
+        if result.get("status") != "ok" or (result.get("attempts") or 1) > 1:
+            compacted["attempts"] = result.get("attempts")
+    return prune_empty_values(compacted)
+
+
+def prune_empty_values(value: Any) -> Any:
+    if isinstance(value, dict):
+        cleaned = {}
+        for key, nested in value.items():
+            compacted = prune_empty_values(nested)
+            if compacted is None:
+                continue
+            if compacted == "":
+                continue
+            if compacted == []:
+                continue
+            if compacted == {}:
+                continue
+            cleaned[key] = compacted
+        return cleaned
+    if isinstance(value, list):
+        cleaned = []
+        for nested in value:
+            compacted = prune_empty_values(nested)
+            if compacted is None:
+                continue
+            if compacted == "":
+                continue
+            cleaned.append(compacted)
+        return cleaned
+    return value
+
+
 def normalize_rss_item(source: dict[str, Any], entry: Any) -> dict[str, Any]:
     published_at = pick_entry_datetime(entry)
     tags = []
@@ -123,11 +228,10 @@ def normalize_rss_item(source: dict[str, Any], entry: Any) -> dict[str, Any]:
         "title": title,
         "url": url,
         "published_at": published_at.isoformat() if published_at else None,
-        "summary": getattr(entry, "summary", "")
-        or getattr(entry, "description", "")
-        or "",
+        "summary": compact_summary(
+            getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
+        ),
         "metadata": {
-            "author": getattr(entry, "author", None),
             "tags": tags,
             "priority": bool(source.get("priority", False)),
         },
@@ -255,16 +359,15 @@ def fetch_reddit_source(source: dict[str, Any], window: FetchWindow) -> dict[str
                             "title": title,
                             "url": final_url,
                             "published_at": published_at_dt.isoformat(),
-                            "summary": post.get("link_flair_text") or "",
+                            "summary": compact_summary(
+                                post.get("link_flair_text") or ""
+                            ),
                             "metadata": {
                                 "reddit_url": permalink,
-                                "external_url": external_url,
                                 "score": score,
                                 "num_comments": int(post.get("num_comments", 0) or 0),
                                 "subreddit": subreddit,
-                                "sort": sort,
                                 "priority": priority,
-                                "base_url": base_url,
                             },
                         }
                     )
@@ -334,7 +437,7 @@ def fetch_one(source: dict[str, Any], window: FetchWindow) -> dict[str, Any]:
 def flatten_items(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     items = []
     for result in results:
-        items.extend(result.get("items", []))
+        items.extend(compact_item(item) for item in result.get("items", []))
     items.sort(key=lambda item: item.get("published_at") or "", reverse=True)
     return items
 
@@ -375,7 +478,7 @@ def main() -> int:
         "config_path": str(args.config),
         "item_count": sum(result.get("count", 0) for result in results),
         "items": flatten_items(results),
-        "sources": results,
+        "sources": [compact_source_result(result) for result in results],
     }
     write_output(args.output, payload)
     print(args.output)

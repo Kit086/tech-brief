@@ -47,7 +47,6 @@ At minimum, verify:
 - report name
 - timezone
 - output directory
-- selection artifact directory
 - default brief item count
 - editorial focus
 
@@ -77,7 +76,6 @@ Before execution, identify or confirm these fields when they are not already pre
 - output directory
 - optional output filename
 - optional maximum item count
-- optional intermediate output directory for topic-selection artifacts
 
 If the task comes from cron and these values are already explicit, do not ask unnecessary follow-up questions.
 If a report profile is available, treat it as the authoritative source for report-level defaults.
@@ -87,21 +85,13 @@ If a source config is available, treat it as the authoritative source for what c
 
 1. Read the active source config JSON before anything else.
 2. Read the active report profile JSON before anything else when one exists.
-3. Confirm the reporting window.
-4. Confirm the timezone from the task or active profile.
-5. Verify the report language, output directory, brief item count, selection output directory, and editorial focus from config.
-6. Run `scripts/fetch_sources.py` with explicit `--from` and `--to` values to generate one merged JSON file for the requested time range.
-7. Read the generated JSON output.
-8. Review `items` first as the main candidate pool.
-9. Use `sources` or source-level status only for diagnostics.
-10. Build a topic-selection artifact that records candidate clusters, selected topics, merged items, and concise selection reasons.
-11. Select items according to the active report profile or explicit user instructions.
-12. Merge duplicates or near-duplicates across feeds when they describe the same event.
-13. Draft a brief section and a matching detailed section as a paired list where every brief item has one matching detailed item.
-14. Save the topic-selection artifact into a subdirectory separate from the final tech brief output.
-15. Write the final markdown report.
-16. Save the report into the requested output directory.
-17. Confirm both output paths.
+3. Confirm the reporting window, timezone, language, output directory, brief item count, and editorial focus.
+4. Run `scripts/fetch_sources.py` with explicit `--from` and `--to` values to generate one merged JSON file for the requested time range.
+5. Read the generated JSON output and review `items` first.
+6. Select the most important topics, merging duplicates or near-duplicates across feeds when they describe the same event.
+7. Draft a brief section and a matching detailed section as a paired list where every brief item has one matching detailed item.
+8. Write the final markdown report and save it into the requested output directory.
+9. Confirm the output path.
 
 ## Agent-first boundary
 
@@ -142,37 +132,13 @@ Use a lightweight editorial filter.
 Use the active report profile as the authoritative source for report-level defaults such as item count, output paths, and editorial focus.
 If no profile is provided, use general editorial judgment and keep the report compact, non-repetitive, and useful.
 
-## Suggested curation steps
-
-Use this order of operations:
+Prefer this order:
 
 1. Skim all fetched `items`.
-2. Group obviously duplicated stories by shared URL, shared company/topic, or clearly overlapping headline meaning.
-3. Identify the events with the highest editorial value for this reporting window.
+2. Group duplicated or overlapping stories.
+3. Pick the events with the highest editorial value for the reporting window.
 4. Prefer a balanced mix instead of many variations of the same theme.
 5. Use community signals from Reddit or Hacker News as supporting evidence, not as the only reason to include an item.
-6. Draft the topic-selection artifact before writing the final report.
-7. Write concise one-line brief bullets first.
-8. Expand only the items that still feel important after the brief list is drafted.
-
-## Topic-selection artifact
-
-Before writing the final report, produce an intermediate artifact such as `selected-topics.json` or `selected-topics.md`.
-
-The artifact should capture:
-
-- selected topic title
-- selected status
-- short selection reason
-- supporting `item` identifiers or URLs
-- merged or related items when multiple sources describe the same event
-- optional editorial note about why the topic matters
-
-Save this artifact in a different subdirectory from the final report so the curation step can be reviewed independently.
-For example:
-
-- intermediate artifact under `.../selection/`
-- final report under `.../reports/`
 
 ## Fetched JSON schema you must understand
 
@@ -210,11 +176,11 @@ Item structure:
 Important notes:
 
 - `items` is the main list you should read for report writing
-- `sources` contains per-source diagnostics and counts
-- `summary` may be empty
-- `metadata` varies by source type
-- for Reddit items, `metadata` may include `reddit_url`, `external_url`, `score`, `num_comments`, `subreddit`, `sort`, and `priority`
-- for RSS items, `metadata` may include `author`, `tags`, and feed-specific fields
+- `sources` is a diagnostics-only list and should not contain duplicated full item bodies
+- `summary` may be empty and may be compacted into short plain text
+- `metadata` varies by source type and is intentionally compact
+- for Reddit items, `metadata` may include `reddit_url`, `score`, `num_comments`, `subreddit`, and `priority`
+- for RSS items, `metadata` may include `tags` and `priority`
 
 ## Report-writing rules
 
